@@ -1,4 +1,4 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+[가이드문서](https://github.com/Bona-Stella/backend-docs-hub/blob/main/somnus/README.md)
 
 ## Getting Started
 
