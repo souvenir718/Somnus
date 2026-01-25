@@ -19,7 +19,7 @@ export default function ModeToggle({ mode, onChange }: ModeToggleProps) {
                 className={`flex-1 z-10 flex items-center justify-center text-sm font-medium transition-colors duration-300 ${mode === "sleep" ? "text-white" : "text-zinc-500"
                     }`}
             >
-                <span className="mr-1">✓</span> Sleep
+                Sleep
             </button>
 
             <button

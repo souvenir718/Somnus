@@ -7,7 +7,7 @@ import CycleSettingsModal from "./components/CycleSettingsModal";
 import BottomSheet from "./components/BottomSheet";
 
 export default function Home() {
-  const [mode, setMode] = useState<"wake" | "sleep">("wake");
+  const [mode, setMode] = useState<"wake" | "sleep">("sleep");
   const [targetTime, setTargetTime] = useState<string>("07:00");
   const [fallAsleepTime, setFallAsleepTime] = useState<number>(15);
   const [cycleDuration, setCycleDuration] = useState<number>(90);
@@ -73,7 +73,7 @@ export default function Home() {
       {/* Main Content Area - Scrollable Results */}
       <main className="flex-1 overflow-y-auto pb-[480px]"> {/* Extensive padding for bottom sheet */}
         <div className="pt-4 pb-8">
-          <ResultsList results={results} mode={mode} />
+          <ResultsList results={results} mode={mode} cycleDuration={cycleDuration} />
         </div>
       </main>
 

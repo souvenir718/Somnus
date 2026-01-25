@@ -122,14 +122,9 @@ export default function BottomSheet({
                     </div>
 
                     {/* Bottom Actions Row */}
-                    <div className="flex items-center justify-between gap-4 mt-2">
-                        {/* 'N' Button */}
-                        <button className="w-12 h-12 flex items-center justify-center rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 font-bold hover:bg-zinc-800 transition-colors">
-                            N
-                        </button>
-
+                    <div className="flex items-center justify-center mt-2">
                         {/* Mode Toggle */}
-                        <div className="flex-1 max-w-[240px]">
+                        <div className="max-w-[240px]">
                             <ModeToggle mode={mode} onChange={setMode} />
                         </div>
                     </div>

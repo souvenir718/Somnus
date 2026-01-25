@@ -4,19 +4,12 @@ import { type SleepCycle, formatTime } from "../utils/sleep";
 
 interface ResultsListProps {
     results: SleepCycle[];
-    mode: "sleep" | "wake"; // To customize "Wake at" vs "Sleep at" text if needed
+    mode: "sleep" | "wake";
+    cycleDuration: number;
 }
 
-export default function ResultsList({ results }: ResultsListProps) {
-    // Filter for "Suggested" (Best/Good) vs "Others"
-    // Actually, based on the image: 
-    // "Suggested" -> usually 5 or 6 cycles
-    // "Other Options" -> rest
-
+export default function ResultsList({ results, cycleDuration }: ResultsListProps) {
     const suggested = results.filter(r => r.cycles >= 5 && r.cycles <= 6);
-    // Sort suggested by time descending if it's bed time (latest first? no usually earliest first)
-    // Let's keep the order returned by the util.
-
     const others = results.filter(r => r.cycles < 5 || r.cycles > 6);
 
     return (
@@ -30,7 +23,7 @@ export default function ResultsList({ results }: ResultsListProps) {
                         <div key={i} className="flex justify-between items-center text-white">
                             <span className="text-3xl font-bold">{item.formattedTime}</span>
                             <span className="text-zinc-500 text-sm font-medium">
-                                {item.cycles} cycles ({formatDuration(item.cycles)})
+                                {item.cycles} cycles ({formatDuration(item.cycles, cycleDuration)})
                             </span>
                         </div>
                     ))}
@@ -45,7 +38,7 @@ export default function ResultsList({ results }: ResultsListProps) {
                         <div key={i} className="flex justify-between items-center text-white">
                             <span className="text-3xl font-bold">{item.formattedTime}</span>
                             <span className="text-zinc-500 text-sm font-medium">
-                                {item.cycles} cycles ({formatDuration(item.cycles)})
+                                {item.cycles} cycles ({formatDuration(item.cycles, cycleDuration)})
                             </span>
                         </div>
                     ))}
@@ -56,8 +49,8 @@ export default function ResultsList({ results }: ResultsListProps) {
     );
 }
 
-function formatDuration(cycles: number) {
-    const totalMinutes = cycles * 90;
+function formatDuration(cycles: number, durationPerCycle: number) {
+    const totalMinutes = cycles * durationPerCycle;
     const h = Math.floor(totalMinutes / 60);
     const m = totalMinutes % 60;
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;

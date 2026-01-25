@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 
 interface CycleSettingsModalProps {
     isOpen: boolean;
@@ -11,47 +11,52 @@ interface CycleSettingsModalProps {
 
 export default function CycleSettingsModal({ isOpen, onClose, cycleDuration, onDurationChange }: CycleSettingsModalProps) {
     const scrollRef = useRef<HTMLDivElement>(null);
+    const [localDuration, setLocalDuration] = useState(cycleDuration);
 
     // Range of cycle durations: 60 min to 120 min, step 10
-    // Image shows 80, 90, 100.
     const values = Array.from({ length: 7 }, (_, i) => 60 + i * 10); // 60, 70, ... 120
+
+    // Sync local state when modal opens or prop updates
+    useEffect(() => {
+        if (isOpen) {
+            setLocalDuration(cycleDuration);
+        }
+    }, [isOpen, cycleDuration]);
 
     useEffect(() => {
         if (isOpen && scrollRef.current) {
-            // Center the selected value
-            // Width of item ~80px (w-20). Center is containerWidth/2. 
-            // We want the selected item center to align with container center.
-            const index = values.indexOf(cycleDuration);
+            // Center the selected value based on local state
+            const index = values.indexOf(localDuration);
             if (index !== -1) {
                 const itemWidth = 80;
-                const containerWidth = scrollRef.current.clientWidth;
-                const scrollPos = (index * itemWidth) - (containerWidth / 2) + (itemWidth / 2);
-                scrollRef.current.scrollLeft = scrollPos;
+                scrollRef.current.scrollLeft = index * itemWidth;
             }
         }
-    }, [isOpen, cycleDuration]); // Re-center when opened or value changes externally? Mainly when opened.
+    }, [isOpen, localDuration]); // Depend on localDuration for scrolling
 
     const handleScroll = () => {
         if (!scrollRef.current) return;
 
-        // Find center item
         const itemWidth = 80;
-        const scrollCenter = scrollRef.current.scrollLeft + (scrollRef.current.clientWidth / 2);
-        const index = Math.floor(scrollCenter / itemWidth);
+        const index = Math.round(scrollRef.current.scrollLeft / itemWidth);
         const value = values[index];
 
-        if (value && value !== cycleDuration) {
-            onDurationChange(value);
+        if (value && value !== localDuration) {
+            setLocalDuration(value);
         }
     };
 
+    const handleDone = () => {
+        onDurationChange(localDuration);
+        onClose();
+    };
 
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
 
-            {/* Close Button */}
+            {/* Close Button - discard changes */}
             <button
                 onClick={onClose}
                 className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-white transition-colors"
@@ -78,19 +83,17 @@ export default function CycleSettingsModal({ isOpen, onClose, cycleDuration, onD
                         {values.map((val) => (
                             <div
                                 key={val}
-                                className={`flex-shrink-0 w-20 h-20 flex items-center justify-center snap-center transition-all duration-300 ${val === cycleDuration
+                                className={`flex-shrink-0 w-20 h-20 flex items-center justify-center snap-center transition-all duration-300 ${val === localDuration
                                     ? "text-6xl font-bold text-white"
                                     : "text-4xl font-bold text-zinc-600 scale-75"
                                     }`}
                                 onClick={() => {
-                                    // Click to align
-                                    onDurationChange(val);
+                                    setLocalDuration(val);
                                     if (scrollRef.current) {
                                         const index = values.indexOf(val);
                                         const itemWidth = 80;
-                                        const containerWidth = scrollRef.current.clientWidth;
                                         scrollRef.current.scrollTo({
-                                            left: (index * itemWidth) - (containerWidth / 2) + (itemWidth / 2),
+                                            left: index * itemWidth,
                                             behavior: "smooth"
                                         });
                                     }
@@ -105,12 +108,12 @@ export default function CycleSettingsModal({ isOpen, onClose, cycleDuration, onD
                 <div className="space-y-4">
                     <p className="text-brand-secondary text-xl font-medium">
                         Average cycle is <br />
-                        <span className="text-3xl font-bold text-white">{cycleDuration} min</span>
+                        <span className="text-3xl font-bold text-white">{localDuration} min</span>
                     </p>
                 </div>
 
                 <button
-                    onClick={onClose}
+                    onClick={handleDone}
                     className="px-6 py-2 bg-brand-secondary text-white rounded-full font-bold shadow-lg hover:brightness-110 transition-all flex items-center gap-1"
                 >
                     <span className="bg-white rounded-full p-0.5 text-brand-secondary">

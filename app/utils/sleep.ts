@@ -7,13 +7,26 @@
  */
 export function calculateWakeUpTimes(startTime: Date, fallAsleepMinutes: number, cycleDurationMinutes: number = 90): SleepCycle[] {
   // Adjust start time by adding "fall asleep" time
-  const sleepTime = new Date(startTime.getTime() + fallAsleepMinutes * 60000);
+  // Logic: TargetTime + LATENCY + (CYCLE * N)
+  // We'll calculate the base time (Start + Latency) first, then add cycles in the loop.
+  const baseTimeMs = startTime.getTime() + fallAsleepMinutes * 60000;
 
-  const cyclesToCalculate = [1, 2, 3, 4, 5, 6, 7]; // Extended range for "Other Options"
+  const cyclesToCalculate = [1, 2, 3, 4, 5, 6, 7];
 
   return cyclesToCalculate.map((cycleCount) => {
     const durationMinutes = cycleCount * cycleDurationMinutes;
-    const wakeUpTime = new Date(sleepTime.getTime() + durationMinutes * 60000);
+    const rawTime = new Date(baseTimeMs + durationMinutes * 60000);
+
+    // Rounding: Ceil to nearest 10 minutes
+    // We get total minutes from epoch or just modify the Date object directly carefully.
+    // Easier to round the 'minutes' component and let Date handle overflow.
+    const minutes = rawTime.getMinutes();
+    const roundedMinutes = Math.ceil(minutes / 10) * 10;
+
+    // Create new date to avoid mutating rawTime if we used it elsewhere (though we don't here)
+    const wakeUpTime = new Date(rawTime);
+    wakeUpTime.setMinutes(roundedMinutes, 0, 0); // Sets rounded minutes, 0 seconds, 0 ms. 
+    // Date object automatically handles minute overflow (e.g., setMinutes(60) increments hour)
 
     let label = "Okay";
     if (cycleCount === 5 || cycleCount === 6) label = "Best";
@@ -22,7 +35,6 @@ export function calculateWakeUpTimes(startTime: Date, fallAsleepMinutes: number,
     return {
       cycles: cycleCount,
       time: wakeUpTime,
-      // For wake up times, we display the wake up time
       formattedTime: formatTime(wakeUpTime),
       label,
     };
@@ -39,10 +51,22 @@ export function calculateWakeUpTimes(startTime: Date, fallAsleepMinutes: number,
 export function calculateBedTimes(wakeUpTime: Date, fallAsleepMinutes: number, cycleDurationMinutes: number = 90): SleepCycle[] {
   const cyclesToCalculate = [1, 2, 3, 4, 5, 6, 7];
 
-  // We need to subtract the cycle time AND the fall asleep time
+  // Logic: TargetTime - (CYCLE * N) - LATENCY
+  // Rounding: Floor to nearest 10 minutes
+
   const result = cyclesToCalculate.map((cycleCount) => {
-    const durationMinutes = cycleCount * cycleDurationMinutes;
-    const bedTime = new Date(wakeUpTime.getTime() - durationMinutes * 60000 - fallAsleepMinutes * 60000);
+    const cycleDurationMs = cycleCount * cycleDurationMinutes * 60000;
+    const latencyMs = fallAsleepMinutes * 60000;
+
+    // Calculate raw time
+    const rawTime = new Date(wakeUpTime.getTime() - cycleDurationMs - latencyMs);
+
+    // Rounding: Floor to nearest 10 minutes
+    const minutes = rawTime.getMinutes();
+    const roundedMinutes = Math.floor(minutes / 10) * 10;
+
+    const bedTime = new Date(rawTime);
+    bedTime.setMinutes(roundedMinutes, 0, 0);
 
     let label = "Okay";
     if (cycleCount === 5 || cycleCount === 6) label = "Best";
@@ -51,7 +75,7 @@ export function calculateBedTimes(wakeUpTime: Date, fallAsleepMinutes: number, c
     return {
       cycles: cycleCount,
       time: bedTime,
-      formattedTime: formatTime(bedTime), // Helper property
+      formattedTime: formatTime(bedTime),
       label,
     };
   });
