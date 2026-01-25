@@ -2,11 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { calculateWakeUpTimes, calculateBedTimes, type SleepCycle } from "./utils/sleep";
-import TimeWheel from "./components/TimeWheel";
-import FallAsleepSlider from "./components/FallAsleepSlider";
-import ModeToggle from "./components/ModeToggle";
 import ResultsList from "./components/ResultsList";
 import CycleSettingsModal from "./components/CycleSettingsModal";
+import BottomSheet from "./components/BottomSheet";
 
 export default function Home() {
   const [mode, setMode] = useState<"wake" | "sleep">("wake");
@@ -73,27 +71,21 @@ export default function Home() {
       </header>
 
       {/* Main Content Area - Scrollable Results */}
-      <main className="flex-1 overflow-y-auto pb-[400px]"> {/* Padding bottom to account for fixed controls */}
+      <main className="flex-1 overflow-y-auto pb-[480px]"> {/* Extensive padding for bottom sheet */}
         <div className="pt-4 pb-8">
           <ResultsList results={results} mode={mode} />
         </div>
       </main>
 
-      {/* Fixed Bottom Controls */}
-      <div className="fixed bottom-0 left-0 w-full bg-black/80 backdrop-blur-xl border-t border-white/10 rounded-t-[3rem] p-8 flex flex-col gap-8 z-20 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
-
-        {/* Time Wheel */}
-        <div className="flex justify-center w-full">
-          <TimeWheel value={targetTime} onChange={setTargetTime} />
-        </div>
-
-        {/* Sliders & Toggles */}
-        <div className="flex flex-col items-center gap-6">
-          <FallAsleepSlider value={fallAsleepTime} onChange={setFallAsleepTime} />
-
-          <ModeToggle mode={mode} onChange={setMode} />
-        </div>
-      </div>
+      {/* Bottom Sheet Controls */}
+      <BottomSheet
+        targetTime={targetTime}
+        setTargetTime={setTargetTime}
+        fallAsleepTime={fallAsleepTime}
+        setFallAsleepTime={setFallAsleepTime}
+        mode={mode}
+        setMode={setMode}
+      />
 
     </div>
   );

@@ -15,33 +15,57 @@ export default function TimeWheel({ value, onChange }: TimeWheelProps) {
     const hoursList = Array.from({ length: 24 }, (_, i) => i);
     const minutesList = Array.from({ length: 60 }, (_, i) => i);
 
+    // 5x duplication to prevent jump during normal wrap-around
+    const infiniteHours = [...hoursList, ...hoursList, ...hoursList, ...hoursList, ...hoursList];
+    const infiniteMinutes = [...minutesList, ...minutesList, ...minutesList, ...minutesList, ...minutesList];
+
+    const ITEM_HEIGHT = 40;
+    const CENTER_OFFSET = 44; // (128px container - 40px item) / 2 = 44px
+
     // Scroll helpers
-    const scrollToValue = (container: HTMLDivElement | null, val: number) => {
+    const scrollToValue = (container: HTMLDivElement | null, val: number, count: number) => {
         if (!container) return;
-        const itemHeight = 40; // Approx height of one item
-        container.scrollTop = val * itemHeight;
+        // Start in the middle set (Set 3, index offset 2 * count)
+        const targetIndex = val + (count * 2);
+        container.scrollTop = targetIndex * ITEM_HEIGHT - CENTER_OFFSET;
     };
 
     // Initial scroll position
     useEffect(() => {
-        scrollToValue(hoursRef.current, hours);
-        scrollToValue(minutesRef.current, minutes);
-    }, []); // Run once on mount to set initial pos
+        scrollToValue(hoursRef.current, hours, 24);
+        scrollToValue(minutesRef.current, minutes, 60);
+    }, []); // Run once on mount
 
     // Handle Scroll to update value
     const handleScroll = (type: 'hour' | 'minute', e: React.UIEvent<HTMLDivElement>) => {
         const target = e.target as HTMLDivElement;
-        const itemHeight = 40;
+        const count = type === 'hour' ? 24 : 60;
+        const singleSetHeight = count * ITEM_HEIGHT;
 
-        // Simple debounce could be added here for performance if needed
-        let newValue = Math.round(target.scrollTop / itemHeight);
+        // Infinite Scroll "Teleport" Logic
+        // We have 5 sets: [0, 1, 2, 3, 4]
+        // Target is to stay in Set 2 (Middle).
+        // Buffer: Allow wandering into Set 1 and Set 3.
+        // Jump if we hit Set 0 or Set 4.
+
+        if (target.scrollTop < singleSetHeight) {
+            target.scrollTop += (singleSetHeight * 2);
+        } else if (target.scrollTop > singleSetHeight * 4) {
+            target.scrollTop -= (singleSetHeight * 2);
+        }
+
+        // Calculate value based on position
+        const rawIndex = Math.round((target.scrollTop + CENTER_OFFSET) / ITEM_HEIGHT);
+        const newValue = rawIndex % count;
 
         if (type === 'hour') {
-            if (newValue >= 24) newValue = 23;
-            if (newValue !== hours) onChange(`${newValue.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`);
+            if (newValue !== hours) {
+                onChange(`${newValue.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`);
+            }
         } else {
-            if (newValue >= 60) newValue = 59;
-            if (newValue !== minutes) onChange(`${hours.toString().padStart(2, '0')}:${newValue.toString().padStart(2, '0')}`);
+            if (newValue !== minutes) {
+                onChange(`${hours.toString().padStart(2, '0')}:${newValue.toString().padStart(2, '0')}`);
+            }
         }
     };
 
@@ -55,15 +79,12 @@ export default function TimeWheel({ value, onChange }: TimeWheelProps) {
                 ref={hoursRef}
                 onScroll={(e) => handleScroll('hour', e)}
                 className="h-full w-16 overflow-y-auto snap-y snap-mandatory no-scrollbar text-center"
-                style={{ scrollBehavior: 'smooth' }}
             >
-                <div className="h-[34%]"></div> {/* Spacer */}
-                {hoursList.map(h => (
-                    <div key={h} className="h-10 flex items-center justify-center snap-center text-2xl font-bold text-white/50 aria-[selected=true]:text-white aria-[selected=true]:scale-110 transition-all">
+                {infiniteHours.map((h, i) => (
+                    <div key={i} className="h-10 flex items-center justify-center snap-center text-2xl font-bold text-white/50 aria-[selected=true]:text-white aria-[selected=true]:scale-110 transition-all">
                         <span aria-selected={h === hours}>{h.toString().padStart(2, '0')}</span>
                     </div>
                 ))}
-                <div className="h-[34%]"></div> {/* Spacer */}
             </div>
 
             {/* Minutes */}
@@ -72,13 +93,11 @@ export default function TimeWheel({ value, onChange }: TimeWheelProps) {
                 onScroll={(e) => handleScroll('minute', e)}
                 className="h-full w-16 overflow-y-auto snap-y snap-mandatory no-scrollbar text-center"
             >
-                <div className="h-[34%]"></div> {/* Spacer */}
-                {minutesList.map(m => (
-                    <div key={m} className="h-10 flex items-center justify-center snap-center text-2xl font-bold text-white/50 aria-[selected=true]:text-white aria-[selected=true]:scale-110 transition-all">
+                {infiniteMinutes.map((m, i) => (
+                    <div key={i} className="h-10 flex items-center justify-center snap-center text-2xl font-bold text-white/50 aria-[selected=true]:text-white aria-[selected=true]:scale-110 transition-all">
                         <span aria-selected={m === minutes}>{m.toString().padStart(2, '0')}</span>
                     </div>
                 ))}
-                <div className="h-[34%]"></div> {/* Spacer */}
             </div>
         </div>
     );
