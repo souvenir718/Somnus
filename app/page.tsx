@@ -56,7 +56,7 @@ export default function Home() {
 
       {/* Header / Top Bar */}
       <header className="px-6 py-4 flex justify-between items-center z-10">
-        <h1 className="text-2xl font-bold tracking-tight">Sommnus</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Somnus</h1>
         {/* Menu Icon */}
         <button
           onClick={() => setIsSettingsOpen(true)}
