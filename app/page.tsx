@@ -44,7 +44,7 @@ export default function Home() {
   }, [mode, targetTime, fallAsleepTime, cycleDuration]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-black text-white font-sans overflow-hidden">
+    <div className="flex h-screen flex-col bg-black text-white font-sans overflow-hidden">
 
       {/* Settings Modal */}
       <CycleSettingsModal
@@ -71,7 +71,7 @@ export default function Home() {
       </header>
 
       {/* Main Content Area - Scrollable Results */}
-      <main className="flex-1 overflow-y-auto pb-[480px]"> {/* Extensive padding for bottom sheet */}
+      <main className="flex-1 overflow-hidden pb-[480px]"> {/* Extensive padding for bottom sheet */}
         <div className="pt-4 pb-8">
           <ResultsList results={results} mode={mode} cycleDuration={cycleDuration} />
         </div>
