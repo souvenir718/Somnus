@@ -15,6 +15,15 @@ export default function Home() {
 
   const [results, setResults] = useState<SleepCycle[]>([]);
 
+  // Initialize with current time on client
+  useEffect(() => {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setTargetTime(`${hours}:${minutes}`);
+  }, []);
+
   // Real-time calculation effect
   useEffect(() => {
     if (mode === "wake") {

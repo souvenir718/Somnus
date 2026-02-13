@@ -34,7 +34,7 @@ export default function TimeWheel({ value, onChange }: TimeWheelProps) {
     useEffect(() => {
         scrollToValue(hoursRef.current, hours, 24);
         scrollToValue(minutesRef.current, minutes, 60);
-    }, []); // Run once on mount
+    }, [hours, minutes]); // Run when values change
 
     // Handle Scroll to update value
     const handleScroll = (type: 'hour' | 'minute', e: React.UIEvent<HTMLDivElement>) => {
