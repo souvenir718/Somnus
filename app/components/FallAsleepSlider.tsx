@@ -45,9 +45,6 @@ export default function FallAsleepSlider({ value, onChange }: FallAsleepSliderPr
                         <span key={step} className={value === step ? "text-white" : ""}>{step}</span>
                     ))}
                 </div>
-
-                {/* Unit */}
-                <div className="absolute right-[-2rem] top-8 text-xs text-zinc-500">min</div>
             </div>
         </div>
     );
