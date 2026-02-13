@@ -70,31 +70,31 @@ export default function TimeWheel({ value, onChange }: TimeWheelProps) {
     };
 
     return (
-        <div className="flex h-32 w-full max-w-[200px] justify-center gap-4 relative">
-            {/* Selection Highlight Mask */}
-            <div className="absolute top-[34%] h-10 w-full bg-white/10 rounded-lg pointer-events-none z-10 border border-white/20"></div>
+        <div className="flex h-32 w-full max-w-[340px] justify-center relative">
+            {/* Selection Highlight Mask - Visually compact (200px) but centered */}
+            <div className="absolute top-[34%] h-10 w-[200px] left-1/2 -translate-x-1/2 bg-white/10 rounded-lg pointer-events-none z-10 border border-white/20"></div>
 
-            {/* Hours */}
+            {/* Hours - Aligned to right of left half (center-ish) */}
             <div
                 ref={hoursRef}
                 onScroll={(e) => handleScroll('hour', e)}
-                className="h-full w-16 overflow-y-auto snap-y snap-mandatory no-scrollbar text-center"
+                className="h-full flex-1 overflow-y-auto snap-y snap-mandatory no-scrollbar text-center flex flex-col"
             >
                 {infiniteHours.map((h, i) => (
-                    <div key={i} className="h-10 flex items-center justify-center snap-center text-2xl font-bold text-white/50 aria-[selected=true]:text-white aria-[selected=true]:scale-110 transition-all">
+                    <div key={i} className="h-10 shrink-0 flex items-center justify-end pr-10 snap-center text-2xl font-bold text-white/50 aria-[selected=true]:text-white aria-[selected=true]:scale-110 transition-all">
                         <span aria-selected={h === hours}>{h.toString().padStart(2, '0')}</span>
                     </div>
                 ))}
             </div>
 
-            {/* Minutes */}
+            {/* Minutes - Aligned to left of right half (center-ish) */}
             <div
                 ref={minutesRef}
                 onScroll={(e) => handleScroll('minute', e)}
-                className="h-full w-16 overflow-y-auto snap-y snap-mandatory no-scrollbar text-center"
+                className="h-full flex-1 overflow-y-auto snap-y snap-mandatory no-scrollbar text-center flex flex-col"
             >
                 {infiniteMinutes.map((m, i) => (
-                    <div key={i} className="h-10 flex items-center justify-center snap-center text-2xl font-bold text-white/50 aria-[selected=true]:text-white aria-[selected=true]:scale-110 transition-all">
+                    <div key={i} className="h-10 shrink-0 flex items-center justify-start pl-10 snap-center text-2xl font-bold text-white/50 aria-[selected=true]:text-white aria-[selected=true]:scale-110 transition-all">
                         <span aria-selected={m === minutes}>{m.toString().padStart(2, '0')}</span>
                     </div>
                 ))}
