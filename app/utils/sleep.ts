@@ -17,16 +17,16 @@ export function calculateWakeUpTimes(startTime: Date, fallAsleepMinutes: number,
     const durationMinutes = cycleCount * cycleDurationMinutes;
     const rawTime = new Date(baseTimeMs + durationMinutes * 60000);
 
-    // Rounding: Ceil to nearest 10 minutes
-    // We get total minutes from epoch or just modify the Date object directly carefully.
-    // Easier to round the 'minutes' component and let Date handle overflow.
-    const minutes = rawTime.getMinutes();
-    const roundedMinutes = Math.ceil(minutes / 10) * 10;
+    // Rounding: Removed as per request (exact calculation)
+    // const minutes = rawTime.getMinutes();
+    // const roundedMinutes = Math.ceil(minutes / 10) * 10;
 
     // Create new date to avoid mutating rawTime if we used it elsewhere (though we don't here)
     const wakeUpTime = new Date(rawTime);
-    wakeUpTime.setMinutes(roundedMinutes, 0, 0); // Sets rounded minutes, 0 seconds, 0 ms. 
-    // Date object automatically handles minute overflow (e.g., setMinutes(60) increments hour)
+    // wakeUpTime.setMinutes(roundedMinutes, 0, 0); 
+
+    // Just zero out seconds/ms for cleanliness, but keep exact minutes
+    wakeUpTime.setSeconds(0, 0);
 
     let label = "Okay";
     if (cycleCount === 5 || cycleCount === 6) label = "Best";
@@ -52,7 +52,6 @@ export function calculateBedTimes(wakeUpTime: Date, fallAsleepMinutes: number, c
   const cyclesToCalculate = [1, 2, 3, 4, 5, 6, 7];
 
   // Logic: TargetTime - (CYCLE * N) - LATENCY
-  // Rounding: Floor to nearest 10 minutes
 
   const result = cyclesToCalculate.map((cycleCount) => {
     const cycleDurationMs = cycleCount * cycleDurationMinutes * 60000;
@@ -61,12 +60,13 @@ export function calculateBedTimes(wakeUpTime: Date, fallAsleepMinutes: number, c
     // Calculate raw time
     const rawTime = new Date(wakeUpTime.getTime() - cycleDurationMs - latencyMs);
 
-    // Rounding: Floor to nearest 10 minutes
-    const minutes = rawTime.getMinutes();
-    const roundedMinutes = Math.floor(minutes / 10) * 10;
+    // Rounding: Removed as per request
+    // const minutes = rawTime.getMinutes();
+    // const roundedMinutes = Math.floor(minutes / 10) * 10;
 
     const bedTime = new Date(rawTime);
-    bedTime.setMinutes(roundedMinutes, 0, 0);
+    // bedTime.setMinutes(roundedMinutes, 0, 0);
+    bedTime.setSeconds(0, 0);
 
     let label = "Okay";
     if (cycleCount === 5 || cycleCount === 6) label = "Best";
