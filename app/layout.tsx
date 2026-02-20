@@ -12,6 +12,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport = {
+  themeColor: "#000000",
+};
+
 export const metadata: Metadata = {
   title: "Sommnus",
   description: "Calculate your best sleep cycles",
