@@ -24,6 +24,40 @@ export default function Home() {
     setTargetTime(`${hours}:${minutes}`);
   }, []);
 
+  // 로컬 스토리지에서 설정 불러오기
+  useEffect(() => {
+    try {
+      const storedFallAsleepTime = localStorage.getItem("somnus_fallAsleepTime");
+      if (storedFallAsleepTime && !isNaN(Number(storedFallAsleepTime))) {
+        setFallAsleepTime(Number(storedFallAsleepTime));
+      }
+
+      const storedCycleDuration = localStorage.getItem("somnus_cycleDuration");
+      if (storedCycleDuration && !isNaN(Number(storedCycleDuration))) {
+        setCycleDuration(Number(storedCycleDuration));
+      }
+    } catch (e) {
+      console.error("Failed to load settings from local storage", e);
+    }
+  }, []);
+
+  // 설정이 변경될 때마다 로컬 스토리지에 저장하기
+  useEffect(() => {
+    try {
+      localStorage.setItem("somnus_fallAsleepTime", fallAsleepTime.toString());
+    } catch (e) {
+      console.error("Failed to save fallAsleepTime", e);
+    }
+  }, [fallAsleepTime]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("somnus_cycleDuration", cycleDuration.toString());
+    } catch (e) {
+      console.error("Failed to save cycleDuration", e);
+    }
+  }, [cycleDuration]);
+
   // Real-time calculation effect
   useEffect(() => {
     if (mode === "wake") {
